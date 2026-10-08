@@ -16,6 +16,9 @@
  * limitations under the License.
  *
  * @APPLE_APACHE_LICENSE_HEADER_END@
+ *
+ * Modified by the Kakehashi Project: pipe runloop handles for the
+ * DISPATCH_KAKEHASHI platform path.
  */
 
 /*
@@ -175,9 +178,21 @@ void _dispatch_prohibit_transition_to_multithreaded(bool prohibit);
  * SPI for CoreFoundation/Foundation ONLY
  */
 
+// Runloop handles are a pipe on non-Linux Unix and on the Kakehashi guest
+// platform, which has POSIX pipes but neither Mach ports nor eventfd.
+#if defined(DISPATCH_KAKEHASHI) && DISPATCH_KAKEHASHI
+#define DISPATCH_RUNLOOP_HANDLE_IS_PIPE 1
+#elif defined(__unix__) && !defined(__linux__)
+#define DISPATCH_RUNLOOP_HANDLE_IS_PIPE 1
+#else
+#define DISPATCH_RUNLOOP_HANDLE_IS_PIPE 0
+#endif
+
 #if TARGET_OS_MAC
 #define DISPATCH_COCOA_COMPAT 1
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(_WIN32)
+#define DISPATCH_COCOA_COMPAT 1
+#elif DISPATCH_RUNLOOP_HANDLE_IS_PIPE
 #define DISPATCH_COCOA_COMPAT 1
 #else
 #define DISPATCH_COCOA_COMPAT 0
@@ -191,7 +206,7 @@ void _dispatch_prohibit_transition_to_multithreaded(bool prohibit);
 typedef mach_port_t dispatch_runloop_handle_t;
 #elif defined(__linux__)
 typedef int dispatch_runloop_handle_t;
-#elif defined(__unix__)
+#elif defined(__unix__) || DISPATCH_RUNLOOP_HANDLE_IS_PIPE
 typedef uint64_t dispatch_runloop_handle_t;
 #elif defined(_WIN32)
 typedef void *dispatch_runloop_handle_t;
