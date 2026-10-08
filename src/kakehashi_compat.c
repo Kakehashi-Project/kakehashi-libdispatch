@@ -12,6 +12,7 @@
 #define KH_QOS_CLASS_DEFAULT 0x15u
 
 typedef void *dispatch_queue_t;
+typedef void *dispatch_queue_attr_t;
 typedef void *dispatch_semaphore_t;
 typedef void *dispatch_workloop_t;
 typedef void *os_workgroup_t;
@@ -31,6 +32,9 @@ extern intptr_t dispatch_semaphore_signal(dispatch_semaphore_t dsema);
 extern intptr_t dispatch_semaphore_wait(dispatch_semaphore_t dsema,
 		uint64_t timeout);
 extern void dispatch_assert_queue(dispatch_queue_t queue);
+extern void dispatch_assert_queue_not(dispatch_queue_t queue);
+extern dispatch_queue_t dispatch_queue_create_with_target(const char *label,
+		dispatch_queue_attr_t attr, dispatch_queue_t target);
 
 struct kh_objc_class {
 	uint64_t isa;
@@ -338,6 +342,26 @@ KH_EXPORT void
 kh_dispatch_assert_queue_v2(dispatch_queue_t queue)
 {
 	dispatch_assert_queue(queue);
+}
+
+// Public SDK declarations bind these versioned names. Keep the portable
+// implementation's existing names and forward without changing its semantics.
+KH_EXPORT void kh_dispatch_assert_queue_not_v2(dispatch_queue_t queue)
+		__asm("_dispatch_assert_queue_not$V2");
+KH_EXPORT void
+kh_dispatch_assert_queue_not_v2(dispatch_queue_t queue)
+{
+	dispatch_assert_queue_not(queue);
+}
+
+KH_EXPORT dispatch_queue_t kh_dispatch_queue_create_with_target_v2(
+		const char *label, dispatch_queue_attr_t attr, dispatch_queue_t target)
+		__asm("_dispatch_queue_create_with_target$V2");
+KH_EXPORT dispatch_queue_t
+kh_dispatch_queue_create_with_target_v2(const char *label,
+		dispatch_queue_attr_t attr, dispatch_queue_t target)
+{
+	return dispatch_queue_create_with_target(label, attr, target);
 }
 
 KH_EXPORT qos_class_t qos_class_self(void);
