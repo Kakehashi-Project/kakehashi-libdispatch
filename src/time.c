@@ -43,7 +43,7 @@ _dispatch_mach_host_time_mach2nano(uint64_t machtime)
 		return INT64_MAX;
 	}
 	long double big_tmp = ((long double)machtime * data->frac) + .5L;
-	if (unlikely(big_tmp >= INT64_MAX)) {
+	if (unlikely(big_tmp >= (long double)INT64_MAX)) {
 		return INT64_MAX;
 	}
 	return (uint64_t)big_tmp;
@@ -61,7 +61,7 @@ _dispatch_mach_host_time_nano2mach(uint64_t nsec)
 		return INT64_MAX;
 	}
 	long double big_tmp = ((long double)nsec / data->frac) + .5L;
-	if (unlikely(big_tmp >= INT64_MAX)) {
+	if (unlikely(big_tmp >= (long double)INT64_MAX)) {
 		return INT64_MAX;
 	}
 	return (uint64_t)big_tmp;
