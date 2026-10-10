@@ -272,11 +272,17 @@ endif()
 if(DISPATCH_KAKEHASHI)
   # The guest ABI has public Mach entry points, but deliberately excludes the
   # private Darwin Mach/pthread implementation surface used by Apple's build.
-  # Keep the public Mach semaphore ABI, select portable clock paths, and
-  # retain kqueue without enabling private Mach implementation features.
+  # Keep the public Mach semaphore ABI and retain kqueue without enabling
+  # private Mach implementation features.
+  #
+  # Time stays in the host (Mach tick) domain: dispatch_time_t is Darwin ABI,
+  # and Darwin clients build deadlines in Mach ticks themselves (the Swift
+  # concurrency runtime converts its clock deadlines with the fixed 125/3
+  # timebase). Nanosecond units read those deadlines as long past, so every
+  # Task.sleep fired at once.
   set(HAVE_MACH 0)
-  set(HAVE_MACH_ABSOLUTE_TIME 0)
-  set(HAVE_MACH_APPROXIMATE_TIME 0)
+  set(HAVE_MACH_ABSOLUTE_TIME 1)
+  set(HAVE_MACH_APPROXIMATE_TIME 1)
   set(HAVE_PTHREAD_ATTR_SETCPUPERCENT_NP 0)
   set(USE_MACH_SEM 1)
   set(USE_POSIX_SEM 0)
