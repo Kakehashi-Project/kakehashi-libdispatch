@@ -10,6 +10,7 @@
 
 #include <TargetConditionals.h>
 #include <mach/mach.h>
+#include <mach/mach_time.h>
 #include <os/availability.h>
 #include <sched.h>
 
